@@ -41,16 +41,21 @@
             border-radius: 8px;
             resize: vertical;
             box-sizing: border-box;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.6;
         }
         
         .arabic {
             direction: rtl;
             text-align: right;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Arial', 'Segoe UI', sans-serif;
+            font-size: 20px;
         }
         
         .cyrillic {
             font-family: 'Arial', sans-serif;
+            font-size: 18px;
         }
         
         .buttons {
@@ -105,11 +110,32 @@
             margin-top: 20px;
             font-size: 14px;
         }
+        
+        .example {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .example-code {
+            font-family: monospace;
+            background: #e8e8e8;
+            padding: 5px;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>柯尔克孜语转换器</h1>
+        
+        <div class="example">
+            <strong>测试用例：</strong>
+            <span class="example-code">قىرعىز تىلى</span> → 
+            <span class="example-code">Қырғыз тили</span> |
+        </div>
         
         <div class="direction">
             <span id="from-lang">阿拉伯字母</span>
@@ -128,27 +154,34 @@
             <button onclick="convert()">转换</button>
             <button class="secondary" onclick="copyResult()">复制结果</button>
             <button class="secondary" onclick="clearAll()">清空</button>
+            <button class="secondary" onclick="loadExample()">加载示例</button>
         </div>
         
         <div class="result-box">
             <strong>转换结果：</strong>
-            <div id="output-text" class="text-box cyrillic" style="min-height: 300px; margin-top: 10px;">
-                转换结果将显示在这里...
-            </div>
+            <textarea 
+                id="output-text" 
+                class="text-box cyrillic" 
+                readonly
+                placeholder="转换结果将显示在这里..."
+            ></textarea>
         </div>
         
         <div class="info">
-            <p>按 Ctrl+Enter 快速转换 | 最大支持 10000 字符</p>
+            <p>✅ 支持大小写转换 | ✅ 保留空格和换行 | ✅ 按 Ctrl+Enter 快速转换</p>
         </div>
     </div>
 
     <script>
-        // 映射表
+        // ================================
+        // 完整的映射表（包含大小写）
+        // ================================
+        
         const arabicToCyrillic = {
-            // 组合字母
+            // 组合字母（优先匹配）
             'يە': 'Е', 'يا': 'Я', 'يو': 'Ю', 'يۇ': 'Ё',
             
-            // 单字母
+            // 单字母映射（阿拉伯字母 → 西里尔大写）
             'ش': 'Ш', 'د': 'Д', 'ر': 'Р', 'ز': 'З',
             'ى': 'Ы', 'ئ': 'И', 'ي': 'Й', 'گ': 'Г',
             'ن': 'Н', 'ل': 'Л', 'م': 'М', 'و': 'О',
@@ -156,40 +189,113 @@
             'س': 'С', 'ا': 'А', 'ب': 'Б', 'پ': 'П',
             'ت': 'Т', 'ج': 'Ж', 'چ': 'Ч', 'ح': 'Х',
             'ف': 'Ф', 'ك': 'К', 'ق': 'Қ', 'ع': 'Ғ',
-            'ە': 'Е'
+            'ە': 'Е', 'خ': 'Х',
+            
+            // 标点符号和空格
+            ' ': ' ', '\n': '\n', '\t': '\t',
+            ',': ',', '.': '.', '!': '!', '?': '?',
+            '؛': ';', '،': ',', '؟': '?',
+            '(': '(', ')': ')', '[': '[', ']': ']',
+            '{': '{', '}': '}', '"': '"', "'": "'",
+            'ـ': '-', 'ـ': '-'
         };
         
+        // 西里尔字母反向映射（包含大小写）
         const cyrillicToArabic = {
-            // 反向映射
+            // 大写字母
             'Ш': 'ش', 'Д': 'د', 'Р': 'ر', 'З': 'ز',
-            'Ы': 'ى', 'И': 'ئ', 'Й': 'ي', 'Г': 'گ',
-            'Н': 'ن', 'Л': 'ل', 'М': 'م', 'О': 'و',
+            'Ы': 'ى', 'И': 'ئ', 'Й': 'й', 'Г': 'گ',
+            'Н': 'н', 'Л': 'ل', 'М': 'م', 'О': 'و',
             'Ө': 'ۅ', 'У': 'ۇ', 'Ү': 'ۉ', 'В': 'ۋ',
             'С': 'س', 'А': 'ا', 'Б': 'ب', 'П': 'پ',
             'Т': 'ت', 'Ж': 'ج', 'Ч': 'چ', 'Х': 'ح',
             'Ф': 'ف', 'К': 'ك', 'Қ': 'ق', 'Ғ': 'ع',
-            'Е': 'ە', 'Я': 'يا', 'Ю': 'يو', 'Ё': 'يۇ'
+            'Е': 'ە', 'Я': 'يا', 'Ю': 'يو', 'Ё': 'يۇ',
+            'Ӈ':'ڭ'
+            
+            
+            // 小写字母
+            'ш': 'ش', 'д': 'د', 'р': 'ر', 'з': 'ز​',
+            'ы': 'ى', 'и': 'ئ', 'й': 'й', 'г': 'گ',
+            'н': 'н', 'л': 'ل', 'м': 'م', 'о': 'و',
+            'ө': 'ۅ', 'у': 'ۇ', 'ү': 'ۉ', 'в': 'ۋ',
+            'с': 'س', 'а': 'ا', 'б': 'ب', 'п': 'پ',
+            'т': 'ت', 'ж': 'ج', 'ч': 'چ', 'х': 'ح',
+            'ф': 'ف', 'к': 'ك', 'қ': 'ق', 'ғ': 'ع',
+            'е': 'ە', 'я': 'يا', 'ю': 'يو', 'ё': 'يۇ',
+            'ң':'ڭ'
         };
+        
+        // ================================
+        // 辅助函数
+        // ================================
+        
+        // 检查是否是阿拉伯字母
+        function isArabicChar(char) {
+            const arabicRange = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+            return arabicRange.test(char);
+        }
+        
+        // 检查是否是西里尔字母
+        function isCyrillicChar(char) {
+            return /[\u0400-\u04FF]/.test(char);
+        }
+        
+        // 智能大小写转换
+        function toProperCase(text, isArabicToCyrillic) {
+            if (!text) return text;
+            
+            if (isArabicToCyrillic) {
+                // 阿拉伯语转西里尔：首字母大写，其余保持原样
+                const sentences = text.split(/([.!?]\s+)/);
+                return sentences.map(sentence => {
+                    if (sentence.length === 0) return sentence;
+                    // 找到第一个字母字符
+                    for (let i = 0; i < sentence.length; i++) {
+                        if (isCyrillicChar(sentence[i])) {
+                            return sentence.substring(0, i) + 
+                                   sentence[i].toUpperCase() + 
+                                   sentence.substring(i + 1).toLowerCase();
+                        }
+                    }
+                    return sentence;
+                }).join('');
+            }
+            
+            return text; // 阿拉伯字母无大小写
+        }
+        
+        // ================================
+        // 主转换函数
+        // ================================
         
         let isArabicToCyrillic = true;
         
         function convert() {
-            const input = document.getElementById('input-text').value.trim();
+            const input = document.getElementById('input-text').value;
             
-            if (!input) {
+            if (!input.trim()) {
                 alert('请输入要转换的文本');
                 return;
             }
             
             let output = '';
             
-            if (isArabicToCyrillic) {
-                output = arabicToCyrillicFunc(input);
-            } else {
-                output = cyrillicToArabicFunc(input);
+            try {
+                if (isArabicToCyrillic) {
+                    output = arabicToCyrillicFunc(input);
+                    // 应用智能大小写
+                    output = toProperCase(output, true);
+                } else {
+                    output = cyrillicToArabicFunc(input);
+                }
+                
+                document.getElementById('output-text').value = output;
+                
+            } catch (error) {
+                console.error('转换错误:', error);
+                alert('转换过程中出现错误，请检查输入文本。');
             }
-            
-            document.getElementById('output-text').textContent = output;
         }
         
         function arabicToCyrillicFunc(text) {
@@ -199,11 +305,12 @@
             while (i < text.length) {
                 let matched = false;
                 
-                // 检查组合字母
+                // 优先检查组合字母（最长匹配）
                 const combos = ['يە', 'يا', 'يو', 'يۇ'];
                 for (const combo of combos) {
                     if (i + combo.length <= text.length) {
-                        if (text.substr(i, combo.length) === combo) {
+                        const substr = text.substring(i, i + combo.length);
+                        if (substr === combo) {
                             result += arabicToCyrillic[combo];
                             i += combo.length;
                             matched = true;
@@ -212,9 +319,24 @@
                     }
                 }
                 
+                // 如果没有匹配组合字母
                 if (!matched) {
                     const char = text[i];
-                    result += arabicToCyrillic[char] || char;
+                    
+                    // 处理特殊字符
+                    if (char === 'ە') {
+                        // 词首处理
+                        if (i === 0 || text[i-1].match(/\s/)) {
+                            result += 'Э';
+                        } else {
+                            result += 'е';
+                        }
+                    } else if (char in arabicToCyrillic) {
+                        result += arabicToCyrillic[char];
+                    } else {
+                        result += char; // 保留未知字符
+                    }
+                    
                     i++;
                 }
             }
@@ -224,21 +346,45 @@
         
         function cyrillicToArabicFunc(text) {
             let result = '';
+            let i = 0;
             
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const upperChar = char.toUpperCase();
+            while (i < text.length) {
+                let matched = false;
                 
-                // 检查是否在映射表中
-                if (cyrillicToArabic[upperChar]) {
-                    result += cyrillicToArabic[upperChar];
-                } else {
-                    result += char;
+                // 检查组合字母
+                const combos = ['Е', 'Я', 'Ю', 'Ё', 'е', 'я', 'ю', 'ё'];
+                for (const combo of combos) {
+                    if (i + combo.length <= text.length) {
+                        const substr = text.substring(i, i + combo.length);
+                        if (substr === combo && cyrillicToArabic[combo]) {
+                            result += cyrillicToArabic[combo];
+                            i += combo.length;
+                            matched = true;
+                            break;
+                        }
+                    }
+                }
+                
+                // 单字母转换
+                if (!matched) {
+                    const char = text[i];
+                    
+                    if (char in cyrillicToArabic) {
+                        result += cyrillicToArabic[char];
+                    } else {
+                        result += char; // 保留未知字符
+                    }
+                    
+                    i++;
                 }
             }
             
             return result;
         }
+        
+        // ================================
+        // 界面功能
+        // ================================
         
         function swapDirection() {
             isArabicToCyrillic = !isArabicToCyrillic;
@@ -253,42 +399,57 @@
                 toLang.textContent = '西里尔字母';
                 input.placeholder = '在此输入阿拉伯字母文本...';
                 input.className = 'text-box arabic';
+                output.className = 'text-box cyrillic';
             } else {
                 fromLang.textContent = '西里尔字母';
                 toLang.textContent = '阿拉伯字母';
                 input.placeholder = '在此输入西里尔字母文本...';
                 input.className = 'text-box cyrillic';
+                output.className = 'text-box arabic';
             }
             
-            // 交换内容
+            // 交换内容但保持格式
             const tempInput = input.value;
-            const tempOutput = output.textContent;
+            const tempOutput = output.value;
             
-            input.value = tempOutput === '转换结果将显示在这里...' ? '' : tempOutput;
-            output.textContent = tempInput || '转换结果将显示在这里...';
+            input.value = tempOutput;
+            output.value = tempInput || '';
+            
+            // 如果输出为空，恢复提示
+            if (!output.value) {
+                output.placeholder = '转换结果将显示在这里...';
+            }
         }
         
         function copyResult() {
-            const output = document.getElementById('output-text').textContent;
+            const output = document.getElementById('output-text');
             
-            if (!output || output === '转换结果将显示在这里...') {
+            if (!output.value.trim()) {
                 alert('没有内容可复制');
                 return;
             }
             
-            const textarea = document.createElement('textarea');
-            textarea.value = output;
-            document.body.appendChild(textarea);
-            textarea.select();
+            output.select();
             document.execCommand('copy');
-            document.body.removeChild(textarea);
-            
             alert('已复制到剪贴板');
         }
         
         function clearAll() {
             document.getElementById('input-text').value = '';
-            document.getElementById('output-text').textContent = '转换结果将显示在这里...';
+            document.getElementById('output-text').value = '';
+        }
+        
+        function loadExample() {
+            const examples = {
+                arabic: `قىرعىز تىلى `
+                cyrillic: `Қырғыз тили`
+            };
+            
+            if (isArabicToCyrillic) {
+                document.getElementById('input-text').value = examples.arabic;
+            } else {
+                document.getElementById('input-text').value = examples.cyrillic;
+            }
         }
         
         // 快捷键支持
@@ -297,6 +458,11 @@
                 convert();
             }
         });
+        
+        // 初始化示例
+        window.onload = function() {
+            loadExample();
+        };
     </script>
 </body>
 </html>
