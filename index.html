@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>柯尔克孜语转换器</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px; margin: 0 auto; padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white; border-radius: 20px; padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 { 
+            color: #333; text-align: center; margin-bottom: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .direction {
+            display: flex; align-items: center; justify-content: center;
+            gap: 20px; margin: 20px 0;
+        }
+        .swap-btn {
+            background: #667eea; color: white; border: none;
+            width: 50px; height: 50px; border-radius: 50%;
+            cursor: pointer; font-size: 20px;
+            transition: transform 0.3s;
+        }
+        .swap-btn:hover { transform: rotate(180deg); }
+        .lang-label {
+            font-size: 18px; font-weight: bold; color: #555;
+            padding: 10px 20px; background: #f0f0f0;
+            border-radius: 10px; min-width: 150px; text-align: center;
+        }
+        textarea {
+            width: 100%; min-height: 150px; padding: 15px;
+            border: 2px solid #e0e0e0; border-radius: 10px;
+            font-size: 16px; resize: vertical; margin: 10px 0;
+            transition: border-color 0.3s;
+        }
+        textarea:focus { border-color: #667eea; outline: none; }
+        .btn-group {
+            display: flex; gap: 10px; margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 12px 24px; border: none; border-radius: 8px;
+            font-size: 16px; cursor: pointer; transition: all 0.3s;
+            flex: 1; min-width: 120px;
+        }
+        .convert-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white; font-weight: bold;
+        }
+        .copy-btn { background: #10b981; color: white; }
+        .clear-btn { background: #ef4444; color: white; }
+        .history-btn { background: #f59e0b; color: white; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .result-box {
+            background: #f8fafc; border-radius: 10px;
+            padding: 20px; margin-top: 20px;
+            border-left: 5px solid #667eea;
+        }
+        .history {
+            margin-top: 30px; padding: 20px;
+            background: #f8fafc; border-radius: 10px;
+            display: none;
+        }
+        .history-item {
+            padding: 10px; border-bottom: 1px solid #e5e7eb;
+            font-family: monospace;
+        }
+        .arabic { font-size: 20px; text-align: right; }
+        .cyrillic { font-size: 18px; }
+        @media (max-width: 600px) {
+            .direction { flex-direction: column; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱قىرعىزچا⇆Қырғызча </h1>
+        
+        <div class="direction">
+            <div class="lang-label" id="from-lang">قىرعىزچا</div>
+            <button class="swap-btn" onclick="swapDirection()">⇄</button>
+            <div class="lang-label" id="to-lang">Қырғызча</div>
+        </div>
+        
+        <textarea id="input-text" placeholder="بۇل جەرگە قىرعىزچا كىرگىزەسىز" autofocus></textarea>
+        
+        <div class="btn-group">
+            <button class="convert-btn" onclick="convert()">🔄 قوتورۇۇ</button>
+            <button class="copy-btn" onclick="copyResult()">📋 كۅچۉرۉۉ ناتىيجاسى</button>
+            <button class="clear-btn" onclick="clearAll()">🗑️ تازالوو</button>
+            <button class="history-btn" onclick="toggleHistory()">📜 قوتورۇۇ تارىحى</button>
+        </div>
+        
+        <div class="result-box">
+            <strong>转换结果：</strong>
+            <div id="output-text" style="min-height: 100px; margin-top: 10px; padding: 10px; background: white; border-radius: 5px;"></div>
+        </div>
+        
+        <div class="history" id="history-box">
+            <h3>📜 转换历史</h3>
+            <div id="history-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // 柯尔克孜语转换映射表
+        const arabicToCyrillic = {
+            // 组合字母（必须先匹配长的）
+            'يە': 'Е', 'يا': 'Я', 'يو': 'Ю', 'يۇ': 'Ё',
+            // 单字母
+            'ش': 'Ш', 'د': 'Д', 'ر': 'Р', 'ز': 'З', 'ى': 'Ы',
+            'ئ': 'И', 'ي': 'Й', 'گ': 'Г', 'ن': 'Н', 'ل': 'Л',
+            'م': 'М', 'و': 'О', 'ۅ': 'Ө', 'ۇ': 'У', 'ۉ': 'Ү',
+            'ۋ': 'В', 'س': 'С', 'ا': 'А', 'ب': 'Б', 'پ': 'П',
+            'ت': 'Т', 'ج': 'Ж', 'چ': 'Ч', 'ح': 'Х', 'ف': 'Ф',
+            'ك': 'К', 'ق': 'Қ', 'ع': 'Ғ',
+            // 特殊处理 ە
+            'ە': 'Е'  // 简化为一种处理，实际需根据位置判断
+        };
+        
+        const cyrillicToArabic = {
+            // 反向映射
+            'Ш': 'ش', 'Д': 'د', 'Р': 'ر', 'З': 'ز', 'Ы': 'ى',
+            'И': 'ئ', 'Й': 'ي', 'Г': 'گ', 'Н': 'ن', 'Л': 'ل',
+            'М': 'م', 'О': 'و', 'Ө': 'ۅ', 'У': 'ۇ', 'Ү': 'ۉ',
+            'В': 'ۋ', 'С': 'س', 'А': 'ا', 'Б': 'ب', 'П': 'پ',
+            'Т': 'ت', 'Ж': 'ج', 'Ч': 'چ', 'Х': 'ح', 'Ф': 'ف',
+            'К': 'ك', 'Қ': 'ق', 'Ғ': 'ع', 'Е': 'يە',
+            'Я': 'يا', 'Ю': 'يو', 'Ё': 'يۇ'
+        };
+        
+        let isArabicToCyrillic = true;
+        let conversionHistory = JSON.parse(localStorage.getItem('kyrgyzHistory')) || [];
+        
+        // 初始化显示历史
+        displayHistory();
+        
+        function convert() {
+            const input = document.getElementById('input-text').value.trim();
+            if (!input) {
+                alert('请输入要转换的文本');
+                return;
+            }
+            
+            let output = '';
+            if (isArabicToCyrillic) {
+                output = convertArabicToCyrillic(input);
+            } else {
+                output = convertCyrillicToArabic(input);
+            }
+            
+            document.getElementById('output-text').innerHTML = 
+                `<div style="font-size: 20px; line-height: 1.6;">${output}</div>`;
+            
+            // 保存到历史记录
+            saveToHistory(input, output);
+        }
+        
+        function convertArabicToCyrillic(text) {
+            let result = '';
+            let i = 0;
+            
+            while (i < text.length) {
+                let matched = false;
+                
+                // 优先匹配组合字母
+                for (const [key, value] of Object.entries(arabicToCyrillic)) {
+                    if (key.length > 1 && i + key.length <= text.length) {
+                        if (text.substring(i, i + key.length) === key) {
+                            result += value;
+                            i += key.length;
+                            matched = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!matched) {
+                    const char = text[i];
+                    result += arabicToCyrillic[char] || char;
+                    i++;
+                }
+            }
+            
+            return result;
+        }
+        
+        function convertCyrillicToArabic(text) {
+            let result = '';
+            for (let char of text) {
+                const upperChar = char.toUpperCase();
+                result += cyrillicToArabic[upperChar] || 
+                         (cyrillicToArabic[char] || char);
+            }
+            return result;
+        }
+        
+        function swapDirection() {
+            isArabicToCyrillic = !isArabicToCyrillic;
+            
+            const fromLang = document.getElementById('from-lang');
+            const toLang = document.getElementById('to-lang');
+            const input = document.getElementById('input-text');
+            const output = document.getElementById('output-text');
+            
+            if (isArabicToCyrillic) {
+                fromLang.textContent = '阿拉伯字母';
+                toLang.textContent = '西里尔字母';
+                input.placeholder = '在此输入阿拉伯字母文本...';
+            } else {
+                fromLang.textContent = '西里尔字母';
+                toLang.textContent = '阿拉伯字母';
+                input.placeholder = '在此输入西里尔字母文本...';
+            }
+            
+            // 交换输入输出内容
+            const temp = input.value;
+            input.value = output.textContent || '';
+            output.textContent = temp || '';
+        }
+        
+        function copyResult() {
+            const output = document.getElementById('output-text').textContent;
+            if (!output) {
+                alert('没有内容可复制');
+                return;
+            }
+            
+            navigator.clipboard.writeText(output).then(() => {
+                alert('✅ 已复制到剪贴板');
+            }).catch(err => {
+                // 备用方法
+                const textArea = document.createElement('textarea');
+                textArea.value = output;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ 已复制到剪贴板');
+            });
+        }
+        
+        function clearAll() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('output-text').textContent = '';
+        }
+        
+        function saveToHistory(input, output) {
+            const timestamp = new Date().toLocaleString('zh-CN');
+            const item = {
+                id: Date.now(),
+                timestamp,
+                input,
+                output,
+                direction: isArabicToCyrillic ? '阿拉伯→西里尔' : '西里尔→阿拉伯'
+            };
+            
+            conversionHistory.unshift(item); // 添加到开头
+            if (conversionHistory.length > 20) {
+                conversionHistory = conversionHistory.slice(0, 20); // 保留最近20条
+            }
+            
+            localStorage.setItem('kyrgyzHistory', JSON.stringify(conversionHistory));
+            displayHistory();
+        }
+        
+        function displayHistory() {
+            const historyList = document.getElementById('history-list');
+            if (!conversionHistory.length) {
+                historyList.innerHTML = '<p style="color: #666; text-align: center;">暂无历史记录</p>';
+                return;
+            }
+            
+            historyList.innerHTML = conversionHistory.map(item => `
+                <div class="history-item">
+                    <small style="color: #888;">${item.timestamp} (${item.direction})</small>
+                    <div class="arabic"><strong>输入:</strong> ${item.input}</div>
+                    <div class="cyrillic"><strong>输出:</strong> ${item.output}</div>
+                </div>
+            `).join('');
+        }
+        
+        function toggleHistory() {
+            const historyBox = document.getElementById('history-box');
+            const isVisible = historyBox.style.display === 'block';
+            historyBox.style.display = isVisible ? 'none' : 'block';
+        }
+        
+        // 按Ctrl+Enter快速转换
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                convert();
+            }
+        });
+    </script>
+</body>
+</html>
