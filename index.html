@@ -1,757 +1,195 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Қырғызча⇆قىرعىزچا</title>
+    <title>柯尔克孜语转换器</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Microsoft YaHei', 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
             padding: 20px;
-            color: #333;
+            background: #f5f5f5;
         }
         
         .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-        
-        header {
-            background: linear-gradient(to right, #4361ee, #3a0ca3);
-            color: white;
-            padding: 40px;
-            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
         
         h1 {
-            font-size: 2.8rem;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-        
-        .subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 800px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-        
-        .converter-wrapper {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            padding: 40px;
-        }
-        
-        @media (max-width: 1024px) {
-            .converter-wrapper {
-                grid-template-columns: 1fr;
-                padding: 20px;
-            }
-        }
-        
-        .input-section, .output-section {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border: 2px solid #eef2ff;
-        }
-        
-        .section-title {
-            color: #4361ee;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid #4361ee;
-            font-size: 1.8rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .direction-switcher {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 40px;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 12px;
-        }
-        
-        .lang-label {
-            background: #ffffff;
-            padding: 20px 40px;
-            border-radius: 10px;
-            min-width: 200px;
             text-align: center;
-            font-weight: 600;
-            font-size: 1.3rem;
-            border: 3px solid #e2e8f0;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
+            margin-bottom: 30px;
+            color: #333;
         }
         
-        .lang-label.active {
-            border-color: #4361ee;
-            background: linear-gradient(135deg, #ffffff, #f0f4ff);
-            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.15);
+        .direction {
+            text-align: center;
+            margin: 20px 0;
         }
         
         .swap-btn {
-            background: linear-gradient(45deg, #4361ee, #3a0ca3);
+            background: #ff9800;
             color: white;
             border: none;
-            width: 70px;
-            height: 70px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            font-size: 1.8rem;
+            font-size: 18px;
             cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
-        }
-        
-        .swap-btn:hover {
-            background: linear-gradient(45deg, #3a0ca3, #4361ee);
-            transform: rotate(180deg) scale(1.1);
-            box-shadow: 0 12px 30px rgba(67, 97, 238, 0.4);
-        }
-        
-        .text-area-container {
-            margin: 25px 0;
-            position: relative;
-        }
-        
-        .text-label {
-            display: block;
-            margin-bottom: 15px;
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            margin: 0 10px;
         }
         
         textarea {
             width: 100%;
-            min-height: 300px;
-            padding: 25px;
-            border: 3px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 1.3rem;
+            height: 200px;
+            padding: 15px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
             resize: vertical;
-            transition: all 0.3s;
-            line-height: 1.8;
-            background: #ffffff;
-            font-family: inherit;
+            box-sizing: border-box;
         }
         
-        textarea:focus {
-            border-color: #4361ee;
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
-            background: #f8faff;
-        }
-        
-        .arabic-text {
+        .arabic {
             direction: rtl;
             text-align: right;
-            font-size: 1.5rem;
-            font-family: 'Segoe UI', 'Arial', sans-serif;
-            letter-spacing: 1px;
+            font-size: 18px;
         }
         
-        .cyrillic-text {
-            font-size: 1.4rem;
-            font-family: 'Arial', sans-serif;
-            letter-spacing: 0.5px;
+        .cyrillic {
+            font-size: 16px;
         }
         
-        .button-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin: 30px 0;
+        .buttons {
+            text-align: center;
+            margin: 20px 0;
         }
         
-        .btn {
-            padding: 16px 24px;
+        button {
+            padding: 10px 25px;
+            margin: 0 5px;
+            font-size: 16px;
             border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            min-height: 55px;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(45deg, #4361ee, #3a0ca3);
+            background: #4CAF50;
             color: white;
         }
         
-        .btn-success {
-            background: linear-gradient(45deg, #10b981, #059669);
-            color: white;
+        button:hover {
+            background: #45a049;
         }
         
-        .btn-danger {
-            background: linear-gradient(45deg, #ef4444, #dc2626);
-            color: white;
-        }
-        
-        .btn-info {
-            background: linear-gradient(45deg, #0ea5e9, #0284c7);
-            color: white;
-        }
-        
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-        }
-        
-        .btn:active {
-            transform: translateY(-1px);
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 12px;
-            margin-top: 20px;
-        }
-        
-        .stat-item {
-            text-align: center;
+        .output-box {
+            background: #f9f9f9;
             padding: 15px;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #4361ee;
-            display: block;
-        }
-        
-        .stat-label {
-            color: #64748b;
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 30px;
-            background: #f8fafc;
-            color: #475569;
-            border-top: 3px solid #4361ee;
-        }
-        
-        .char-counter {
-            position: absolute;
-            right: 20px;
-            bottom: 15px;
-            color: #64748b;
-            font-size: 0.9rem;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 5px 12px;
-            border-radius: 20px;
-            border: 1px solid #e2e8f0;
-        }
-        
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .converter-wrapper {
-                padding: 15px;
-                gap: 20px;
-            }
-            
-            .input-section, .output-section {
-                padding: 20px;
-            }
-            
-            .lang-label {
-                min-width: 150px;
-                padding: 15px 25px;
-                font-size: 1.1rem;
-            }
-            
-            .swap-btn {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-            }
-            
-            textarea {
-                min-height: 250px;
-                font-size: 1.2rem;
-                padding: 20px;
-            }
-            
-            .button-group {
-                grid-template-columns: 1fr;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
-            }
-            
-            .container {
-                border-radius: 15px;
-            }
-            
-            header {
-                padding: 25px 20px;
-            }
-            
-            .direction-switcher {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .lang-label {
-                width: 100%;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
+            border-radius: 8px;
+            margin-top: 20px;
+            border-left: 4px solid #4CAF50;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Қырғызча⇆قىرعىزچا</h1>
-            <p class="subtitle">阿拉伯字母 ↔ 西里尔字母双向转换工具 | 基于完整对照表实现</p>
-        </header>
+        <h1>柯尔克孜语转换器</h1>
         
-        <div class="direction-switcher">
-            <div class="lang-label active" id="from-lang">阿拉伯字母</div>
-            <button class="swap-btn" id="swap-btn" onclick="swapDirection()">
-                ⇄
-            </button>
-            <div class="lang-label" id="to-lang">西里尔字母</div>
+        <div class="direction">
+            <span id="from-lang">阿拉伯字母</span>
+            <button class="swap-btn" onclick="swapDirection()">⇄</button>
+            <span id="to-lang">西里尔字母</span>
         </div>
         
-        <div class="converter-wrapper">
-            <!-- 输入区域 -->
-            <div class="input-section">
-                <h2 class="section-title">
-                    <span>📝 输入文本</span>
-                </h2>
-                
-                <div class="text-area-container">
-                    <label class="text-label">
-                        阿拉伯字母文本输入：
-                        <span class="char-counter" id="input-counter">0 字符</span>
-                    </label>
-                    <textarea 
-                        id="input-text" 
-                        class="arabic-text" 
-                        placeholder="在此输入柯尔克孜语阿拉伯字母文本...&#10;&#10;示例：&#10;قىرعىز تىلى&#10;بىز قىرعىزلار&#10;بۇ قەلەم"
-                        autofocus
-                        oninput="updateCharCounter()"
-                        rows="10"
-                    ></textarea>
-                </div>
-                
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="convert()">
-                        🔄 转换文本
-                    </button>
-                    <button class="btn btn-success" onclick="copyInput()">
-                        📋 复制输入
-                    </button>
-                    <button class="btn btn-danger" onclick="clearInput()">
-                        🗑️ 清空输入
-                    </button>
-                    <button class="btn btn-info" onclick="loadExample()">
-                        💡 加载示例
-                    </button>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-number" id="char-count">0</span>
-                        <span class="stat-label">字符数</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="word-count">0</span>
-                        <span class="stat-label">单词数</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="line-count">0</span>
-                        <span class="stat-label">行数</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 输出区域 -->
-            <div class="output-section">
-                <h2 class="section-title">
-                    <span>📄 转换结果</span>
-                </h2>
-                
-                <div class="text-area-container">
-                    <label class="text-label">
-                        西里尔字母转换结果：
-                        <span class="char-counter" id="output-counter">0 字符</span>
-                    </label>
-                    <textarea 
-                        id="output-text" 
-                        class="cyrillic-text" 
-                        placeholder="转换结果将显示在这里..."
-                        readonly
-                        rows="10"
-                    ></textarea>
-                </div>
-                
-                <div class="button-group">
-                    <button class="btn btn-success" onclick="copyResult()">
-                        📋 复制结果
-                    </button>
-                    <button class="btn btn-primary" onclick="swapContent()">
-                        🔁 交换文本
-                    </button>
-                    <button class="btn btn-info" onclick="downloadResult()">
-                        💾 下载结果
-                    </button>
-                    <button class="btn btn-danger" onclick="clearOutput()">
-                        🗑️ 清空结果
-                    </button>
-                </div>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-number" id="conversion-time">0</span>
-                        <span class="stat-label">转换耗时(ms)</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="conversion-count">0</span>
-                        <span class="stat-label">转换次数</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" id="accuracy-rate">100%</span>
-                        <span class="stat-label">准确率</span>
-                    </div>
-                </div>
-            </div>
+        <textarea 
+            id="input-text" 
+            class="arabic" 
+            placeholder="输入文本..."
+            autofocus
+        ></textarea>
+        
+        <div class="buttons">
+            <button onclick="convert()">转换</button>
+            <button onclick="copyResult()">复制</button>
+            <button onclick="clearAll()">清空</button>
         </div>
         
-        <footer>
-            <p>© 2024 柯尔克孜语转换器 | 基于完整对照表实现 | 支持34个字母双向转换</p>
-            <p style="margin-top: 10px; font-size: 0.9rem; color: #94a3b8;">
-                提示：按 Ctrl+Enter 快速转换 | 按 Ctrl+S 保存结果 | 按 Ctrl+D 交换方向
-            </p>
-        </footer>
+        <div class="output-box">
+            <div id="output-text">转换结果将显示在这里...</div>
+        </div>
     </div>
 
     <script>
-        // ================================
-        // 根据对照表的完整映射
-        // ================================
-        
-        const arabicToCyrillicMap = {
-            // 组合字母（必须优先匹配）
-            'يە': 'Е',
-            'يا': 'Я',
-            'يو': 'Ю',
-            'يۇ': 'Ё',
-            
-            // 单字母映射（根据您的对照表）
-            'ش': 'Ш',
-            'د': 'Д',
-            'ر': 'Р',
-            'ز': 'З',
-            'ى': 'Ы',
-            'ئ': 'И',
-            'ي': 'Й',
-            'گ': 'Г',
-            'ن': 'Н',
-            'ل': 'Л',
-            'م': 'М',
-            'و': 'О',
-            'ۅ': 'Ө',
-            'ۇ': 'У',
-            'ۉ': 'Ү',
-            'ۋ': 'В',
-            'س': 'С',
-            'ا': 'А',
-            'ب': 'Б',
-            'پ': 'П',
-            'ت': 'Т',
-            'ج': 'Ж',
-            'چ': 'Ч',
-            'ح': 'Х',
-            'ف': 'Ф',
-            'ك': 'К',
-            'ق': 'Қ',
-            'ع': 'Ғ',
-            'ڭ': 'Ң',
-            'ە': 'Е',
-            
-            // 标点符号和空白字符
-            ' ': ' ',
-            '\n': '\n',
-            '\t': '\t',
-            '\r': '\r',
-            ',': ',',
-            '.': '.',
-            '!': '!',
-            '?': '?',
-            '؛': ';',
-            '،': ',',
-            '؟': '?',
-            '(': '(',
-            ')': ')',
-            '[': '[',
-            ']': ']',
-            '{': '{',
-            '}': '}',
-            '"': '"',
-            "'": "'",
-            'ـ': '-',
-            '_': '_',
-            '=': '=',
-            '+': '+',
-            '-': '-',
-            '*': '*',
-            '/': '/',
-            '\\': '\\',
-            '|': '|',
-            '@': '@',
-            '#': '#',
-            '$': '$',
-            '%': '%',
-            '^': '^',
-            '&': '&',
-            ':': ':',
-            '<': '<',
-            '>': '>'
+        // 映射表
+        const arabicToCyrillic = {
+            'يە': 'Е', 'يا': 'Я', 'يو': 'Ю', 'يۇ': 'Ё',
+            'ش': 'Ш', 'د': 'Д', 'ر': 'Р', 'ز': 'З',
+            'ى': 'Ы', 'ئ': 'И', 'ي': 'Й', 'گ': 'Г',
+            'ن': 'Н', 'ل': 'Л', 'م': 'М', 'و': 'О',
+            'ۅ': 'Ө', 'ۇ': 'У', 'ۉ': 'Ү', 'ۋ': 'В',
+            'س': 'С', 'ا': 'А', 'ب': 'Б', 'پ': 'П',
+            'ت': 'Т', 'ج': 'Ж', 'چ': 'Ч', 'ح': 'Х',
+            'ف': 'Ф', 'ك': 'К', 'ق': 'Қ', 'ع': 'Ғ',
+            'ە': 'Е', 'ڭ': 'Ң'
         };
         
-        // 反向映射表（西里尔转阿拉伯）
-        const cyrillicToArabicMap = {
-            // 大写字母
-            'Ш': 'ش',
-            'Д': 'د',
-            'Р': 'ر',
-            'З': 'ز',
-            'Ы': 'ى',
-            'И': 'ئ',
-            'Й': 'ي',
-            'Г': 'گ',
-            'Н': 'ن',
-            'Л': 'ل',
-            'М': 'م',
-            'О': 'و',
-            'Ө': 'ۅ',
-            'У': 'ۇ',
-            'Ү': 'ۉ',
-            'В': 'ۋ',
-            'С': 'س',
-            'А': 'ا',
-            'Б': 'ب',
-            'П': 'پ',
-            'Т': 'ت',
-            'Ж': 'ج',
-            'Ч': 'چ',
-            'Х': 'ح',
-            'Ф': 'ف',
-            'К': 'ك',
-            'Қ': 'ق',
-            'Ғ': 'ع',
-            'Ң': 'ڭ',
-            'Е': 'ە',
-            'Я': 'يا',
-            'Ю': 'يو',
-            'Ё': 'يۇ',
-            
-            // 小写字母
-            'ш': 'ش',
-            'д': 'د',
-            'р': 'ر',
-            'з': 'ز',
-            'ы': 'ى',
-            'и': 'ئ',
-            'й': 'ي',
-            'г': 'گ',
-            'н': 'ن',
-            'л': 'ل',
-            'м': 'م',
-            'о': 'و',
-            'ө': 'ۅ',
-            'у': 'ۇ',
-            'ү': 'ۉ',
-            'в': 'ۋ',
-            'с': 'س',
-            'а': 'ا',
-            'б': 'ب',
-            'п': 'پ',
-            'т': 'ت',
-            'ж': 'ج',
-            'ч': 'چ',
-            'х': 'ح',
-            'ф': 'ف',
-            'к': 'ك',
-            'қ': 'ق',
-            'ғ': 'ع',
-            'ң': 'ڭ',
-            'е': 'ە',
-            'я': 'يا',
-            'ю': 'يو',
-            'ё': 'يۇ'
+        const cyrillicToArabic = {
+            'Ш': 'ش', 'Д': 'د', 'Р': 'ر', 'З': 'ز',
+            'Ы': 'ى', 'И': 'ئ', 'Й': 'ي', 'Г': 'گ',
+            'Н': 'ن', 'Л': 'ل', 'М': 'م', 'О': 'و',
+            'Ө': 'ۅ', 'У': 'ۇ', 'Ү': 'ۉ', 'В': 'ۋ',
+            'С': 'س', 'А': 'ا', 'Б': 'ب', 'П': 'پ',
+            'Т': 'ت', 'Ж': 'ج', 'Ч': 'چ', 'Х': 'ح',
+            'Ф': 'ف', 'К': 'ك', 'Қ': 'ق', 'Ғ': 'ع',
+            'Е': 'ە', 'Я': 'يا', 'Ю': 'يو', 'Ё': 'يۇ',
+            'Ң': 'ڭ'
         };
-        
-        // ================================
-        // 全局变量
-        // ================================
         
         let isArabicToCyrillic = true;
-        let conversionCount = 0;
-        let totalConversionTime = 0;
-        let lastConversionTime = 0;
-        
-        // ================================
-        // 初始化函数
-        // ================================
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            updateCharCounter();
-            setupKeyboardShortcuts();
-            loadExample();
-        });
-        
-        // ================================
-        // 字符计数更新
-        // ================================
-        
-        function updateCharCounter() {
-            const inputText = document.getElementById('input-text').value;
-            const charCount = inputText.length;
-            const wordCount = inputText.trim() ? inputText.trim().split(/\s+/).filter(w => w.length > 0).length : 0;
-            const lineCount = inputText ? inputText.split('\n').length : 1;
-            
-            document.getElementById('input-counter').textContent = `${charCount} 字符`;
-            document.getElementById('char-count').textContent = charCount;
-            document.getElementById('word-count').textContent = wordCount;
-            document.getElementById('line-count').textContent = lineCount;
-        }
-        
-        // ================================
-        // 核心转换函数
-        // ================================
         
         function convert() {
-            const startTime = performance.now();
-            const inputText = document.getElementById('input-text').value;
+            const input = document.getElementById('input-text').value.trim();
             
-            if (!inputText.trim()) {
-                alert('请输入要转换的文本');
+            if (!input) {
+                alert('请输入文本');
                 return;
             }
             
-            try {
-                let outputText = '';
-                
-                if (isArabicToCyrillic) {
-                    outputText = convertArabicToCyrillic(inputText);
-                } else {
-                    outputText = convertCyrillicToArabic(inputText);
-                }
-                
-                document.getElementById('output-text').value = outputText;
-                document.getElementById('output-counter').textContent = `${outputText.length} 字符`;
-                
-                // 更新统计
-                lastConversionTime = performance.now() - startTime;
-                totalConversionTime += lastConversionTime;
-                conversionCount++;
-                
-                const avgTime = conversionCount > 0 ? (totalConversionTime / conversionCount).toFixed(2) : 0;
-                
-                document.getElementById('conversion-time').textContent = lastConversionTime.toFixed(2);
-                document.getElementById('conversion-count').textContent = conversionCount;
-                document.getElementById('accuracy-rate').textContent = '100%';
-                
-                // 显示成功消息
-                showToast('转换成功！', 'success');
-                
-            } catch (error) {
-                console.error('转换错误:', error);
-                showToast('转换过程中出现错误', 'error');
+            let output = '';
+            
+            if (isArabicToCyrillic) {
+                output = arabicToCyrillicFunc(input);
+            } else {
+                output = cyrillicToArabicFunc(input);
             }
+            
+            document.getElementById('output-text').textContent = output;
         }
         
-        function convertArabicToCyrillic(text) {
+        function arabicToCyrillicFunc(text) {
             let result = '';
             let i = 0;
             
             while (i < text.length) {
                 let matched = false;
                 
-                // 优先匹配组合字母（最长匹配原则）
-                const comboKeys = ['يە', 'يا', 'يو', 'يۇ'];
-                for (const key of comboKeys) {
-                    if (i + key.length <= text.length) {
-                        const substr = text.substring(i, i + key.length);
-                        if (substr === key) {
-                            result += arabicToCyrillicMap[key];
-                            i += key.length;
+                // 检查组合字母
+                const combos = ['يە', 'يا', 'يو', 'يۇ'];
+                for (const combo of combos) {
+                    if (i + combo.length <= text.length) {
+                        if (text.substring(i, i + combo.length) === combo) {
+                            result += arabicToCyrillic[combo];
+                            i += combo.length;
                             matched = true;
                             break;
                         }
                     }
                 }
                 
-                // 如果没有匹配到组合字母，匹配单字母
                 if (!matched) {
                     const char = text[i];
-                    
-                    // 特殊处理 ە 字母（根据位置决定大小写）
-                    if (char === 'ە') {
-                        if (i === 0 || /[\s\n\r]/.test(text[i-1])) {
-                            result += 'Э';  // 词首大写
-                        } else {
-                            result += 'е';  // 词中小写
-                        }
-                    } else if (char in arabicToCyrillicMap) {
-                        result += arabicToCyrillicMap[char];
-                    } else {
-                        result += char;  // 保留未知字符
-                    }
-                    
+                    result += arabicToCyrillic[char] || char;
                     i++;
                 }
             }
@@ -759,47 +197,16 @@
             return result;
         }
         
-        function convertCyrillicToArabic(text) {
+        function cyrillicToArabicFunc(text) {
             let result = '';
-            let i = 0;
             
-            while (i < text.length) {
-                let matched = false;
-                
-                // 检查是否是组合字母
-                const comboKeys = ['Я', 'Ю', 'Ё', 'я', 'ю', 'ё', 'Е', 'е'];
-                for (const key of comboKeys) {
-                    if (i + 1 <= text.length) {
-                        const substr = text.substring(i, i + 1);
-                        if (substr === key && cyrillicToArabicMap[key]) {
-                            result += cyrillicToArabicMap[key];
-                            i += 1;
-                            matched = true;
-                            break;
-                        }
-                    }
-                }
-                
-                // 单字母转换
-                if (!matched) {
-                    const char = text[i];
-                    
-                    if (char in cyrillicToArabicMap) {
-                        result += cyrillicToArabicMap[char];
-                    } else {
-                        result += char;  // 保留未知字符
-                    }
-                    
-                    i++;
-                }
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                result += cyrillicToArabic[char] || char;
             }
             
             return result;
         }
-        
-        // ================================
-        // 界面功能函数
-        // ================================
         
         function swapDirection() {
             isArabicToCyrillic = !isArabicToCyrillic;
@@ -809,218 +216,55 @@
             const input = document.getElementById('input-text');
             const output = document.getElementById('output-text');
             
-            // 更新语言标签
             if (isArabicToCyrillic) {
                 fromLang.textContent = '阿拉伯字母';
                 toLang.textContent = '西里尔字母';
-                fromLang.classList.add('active');
-                toLang.classList.remove('active');
-                input.placeholder = '在此输入柯尔克孜语阿拉伯字母文本...';
-                input.className = 'arabic-text';
-                output.className = 'cyrillic-text';
+                input.className = 'arabic';
+                input.placeholder = '输入阿拉伯字母文本...';
             } else {
                 fromLang.textContent = '西里尔字母';
                 toLang.textContent = '阿拉伯字母';
-                fromLang.classList.remove('active');
-                toLang.classList.add('active');
-                input.placeholder = '在此输入柯尔克孜语西里尔字母文本...';
-                input.className = 'cyrillic-text';
-                output.className = 'arabic-text';
+                input.className = 'cyrillic';
+                input.placeholder = '输入西里尔字母文本...';
             }
             
-            showToast('已切换转换方向', 'info');
-        }
-        
-        function swapContent() {
-            const input = document.getElementById('input-text');
-            const output = document.getElementById('output-text');
-            
+            // 交换内容
             const tempInput = input.value;
-            const tempOutput = output.value;
+            const tempOutput = output.textContent === '转换结果将显示在这里...' ? '' : output.textContent;
             
             input.value = tempOutput;
-            output.value = tempInput;
-            
-            updateCharCounter();
-            document.getElementById('output-counter').textContent = `${tempInput.length} 字符`;
-            
-            showToast('已交换输入输出文本', 'info');
-        }
-        
-        function copyInput() {
-            const inputText = document.getElementById('input-text');
-            
-            if (!inputText.value.trim()) {
-                showToast('输入框为空，无内容可复制', 'warning');
-                return;
-            }
-            
-            inputText.select();
-            document.execCommand('copy');
-            showToast('已复制输入内容到剪贴板', 'success');
+            output.textContent = tempInput || '转换结果将显示在这里...';
         }
         
         function copyResult() {
-            const outputText = document.getElementById('output-text');
+            const output = document.getElementById('output-text').textContent;
             
-            if (!outputText.value.trim()) {
-                showToast('输出框为空，无内容可复制', 'warning');
+            if (!output || output === '转换结果将显示在这里...') {
+                alert('没有内容可复制');
                 return;
             }
             
-            outputText.select();
+            const textarea = document.createElement('textarea');
+            textarea.value = output;
+            document.body.appendChild(textarea);
+            textarea.select();
             document.execCommand('copy');
-            showToast('已复制结果到剪贴板', 'success');
+            document.body.removeChild(textarea);
+            
+            alert('已复制');
         }
         
-        function clearInput() {
+        function clearAll() {
             document.getElementById('input-text').value = '';
-            updateCharCounter();
-            showToast('已清空输入内容', 'info');
+            document.getElementById('output-text').textContent = '转换结果将显示在这里...';
         }
         
-        function clearOutput() {
-            document.getElementById('output-text').value = '';
-            document.getElementById('output-counter').textContent = '0 字符';
-            showToast('已清空输出内容', 'info');
-        }
-        
-        function loadExample() {
-            const examples = {
-                arabic: `قىرعىز تىل`,
-                cyrillic: `Қырғыз тили`
-            };
-            
-            if (isArabicToCyrillic) {
-                document.getElementById('input-text').value = examples.arabic;
-            } else {
-                document.getElementById('input-text').value = examples.cyrillic;
+        // 快捷键
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                convert();
             }
-            
-            updateCharCounter();
-            showToast('已加载示例文本', 'info');
-        }
-        
-        function downloadResult() {
-            const outputText = document.getElementById('output-text').value;
-            
-            if (!outputText.trim()) {
-                showToast('没有内容可下载', 'warning');
-                return;
-            }
-            
-           const blob = new Blob([outputText], { type: 'text/plain;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `kyrgyz_conversion_${new Date().getTime()}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            showToast('结果已下载', 'success');
-        }
-        
-        // ================================
-        // 辅助函数
-        // ================================
-        
-        function showToast(message, type = 'info') {
-            // 移除现有的toast
-            const existingToast = document.querySelector('.toast');
-            if (existingToast) {
-                existingToast.remove();
-            }
-            
-            // 创建新的toast
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.textContent = message;
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#10b981' : 
-                           type === 'error' ? '#ef4444' : 
-                           type === 'warning' ? '#f59e0b' : '#3b82f6'};
-                color: white;
-                padding: 12px 24px;
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                z-index: 1000;
-                animation: slideIn 0.3s ease;
-            `;
-            
-            document.body.appendChild(toast);
-            
-            // 3秒后自动移除
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-        
-        function setupKeyboardShortcuts() {
-            document.addEventListener('keydown', function(e) {
-                // Ctrl+Enter: 转换
-                if (e.ctrlKey && e.key === 'Enter') {
-                    e.preventDefault();
-                    convert();
-                }
-                
-                // Ctrl+S: 保存结果
-                if (e.ctrlKey && e.key === 's') {
-                    e.preventDefault();
-                    downloadResult();
-                }
-                
-                // Ctrl+D: 交换方向
-                if (e.ctrlKey && e.key === 'd') {
-                    e.preventDefault();
-                    swapDirection();
-                }
-                
-                // Ctrl+E: 交换文本
-                if (e.ctrlKey && e.key === 'e') {
-                    e.preventDefault();
-                    swapContent();
-                }
-                
-                // Ctrl+L: 加载示例
-                if (e.ctrlKey && e.key === 'l') {
-                    e.preventDefault();
-                    loadExample();
-                }
-            });
-        }
-        
-        // 添加CSS动画
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            
-            @keyframes slideOut {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
+        });
     </script>
 </body>
 </html>
