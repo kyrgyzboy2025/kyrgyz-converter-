@@ -86,25 +86,26 @@
 </head>
 <body>
     <div class="container">
-        <h1>Қырғызча қат алмаштыруу⇆قىرعىزچا قات الماشتىرۇۇ​</h1>
+        <h1>Қырғызча қат алмаштыруу
+               قىرعىزچا قات الماشتىرۇۇ​</h1>
         
         <div class="direction">
-            <span id="from-lang">阿拉伯字母</span>
-            <button class="swap-btn" onclick="swapDirection()">⇄ 切换方向</button>
-            <span id="to-lang">西里尔字母</span>
+            <span id="from-lang">قىرعىزچا</span>
+            <button class="swap-btn" onclick="swapDirection()">⇄</button>
+            <span id="to-lang">Қырғызча</span>
         </div>
         
         <textarea 
             id="input-text" 
             class="arabic" 
-            placeholder="输入文本..."
+            placeholder=""
             autofocus
         ></textarea>
         
         <div class="buttons">
-            <button onclick="convert()">转换</button>
-            <button onclick="copyResult()">复制结果</button>
-            <button onclick="clearAll()">清空</button>
+            <button onclick="convert()">قوتورۇۇ<қоторуу/button>
+            <button onclick="copyResult()">كۅچۉرۉۉ/көчүрүү</button>
+            <button onclick="clearAll()">تازالوو/тазалоо</button>
         </div>
         
         <div class="output-box">
@@ -142,12 +143,12 @@
         let isArabicToCyrillic = true;
         
         function convert() {
-            console.log("الماشتىرۇۇ");
+            console.log("");
             const input = document.getElementById('input-text').value;
-            console.log(":كىرگىزۉۉ", input);
+            console.log("", input);
             
             if (!input.trim()) {
-                alert('قات كىرگىزىڭ');
+                alert('');
                 return;
             }
             
@@ -160,12 +161,12 @@
                     output = convertText(input, false);
                 }
                 
-                console.log ("قوتورۇۇ", output);
+                console.log ("", output);
                 document.getElementById('output-text').textContent = output;
                 
             } catch (error) {
-                console.error(":قاتاالىق بار", error);
-                alert(':قاتاالىق كۅرۉلدۉ ' + error.message);
+                console.error("", error);
+                alert('' + error.message);
             }
         }
         
